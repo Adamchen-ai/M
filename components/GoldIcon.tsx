@@ -1,0 +1,13 @@
+import React from 'react';
+
+export const GoldIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    viewBox="0 0 512 512" 
+    fill="currentColor"
+    {...props}
+    className={`text-yellow-400 ${props.className || ''}`}
+  >
+    <path d="M64 64C81.7 64 96 78.3 96 96V256H64V96C64 78.3 78.3 64 64 64zM0 96C0 60.7 28.7 32 64 32H224c35.3 0 64 28.7 64 64V256H0V96zM288 320H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H288V320zM224 416c0-35.3-28.7-64-64-64H0v64c0 35.3 28.7 64 64 64H192c17.7 0 32-14.3 32-32zM320 256H512V96c0-35.3-28.7-64-64-64H320V256zM224 288V416c0 53 43 96 96 96H448c53 0 96-43 96-96V320c0-53-43-96-96-96H224zM0 288H192c53 0 96 43 96 96v32c0 17.7-14.3 32-32 32H64c-53 0-96-43-96-96V288zM448 32H288c-53 0-96 43-96 96V288H416c53 0 96-43 96-96V64c0-17.7-14.3-32-32-32z"/>
+  </svg>
+);
