@@ -1,62 +1,89 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { generateFitnessPlan, getConsultationResponse } from './services/geminiService';
-import { type UserProfile, type FitnessPlan, type WorkoutDay, type ChatMessage, type BodyMetrics } from './types/index';
-
-// --- Icons ---
-
-const HomeIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-  </svg>
-);
-
-const CalendarIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
-  </svg>
-);
-
-const ChatIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-  </svg>
-);
-
-const StretchIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z" />
-    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 5.975 5.975 0 0 1-2.133-1.001A3.75 3.75 0 0 0 12 18Z" />
-  </svg>
-);
-
-const StatsIcon = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
-  </svg>
-);
+import { type UserProfile, type FitnessPlan, type ChatMessage, type BodyMetrics } from './types/index';
 
 // --- Components ---
 
-const SelectField = ({ label, value, onChange, options }: any) => (
-  <div className="mb-4">
-    <label className="block text-slate-400 text-sm font-medium mb-2">{label}</label>
-    <select
-      value={value}
-      onChange={onChange}
-      className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 appearance-none"
-    >
-      {options.map((opt: any) => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
-      ))}
-    </select>
-  </div>
+const Navbar = ({ activeTab, setActiveTab, onReset, hasPlan }: any) => (
+  <nav className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <div className="max-w-6xl mx-auto px-4">
+      <div className="flex justify-between items-center h-16">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+            AI
+          </div>
+          <span className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent hidden sm:block">
+            智能健身教練
+          </span>
+        </div>
+        
+        {hasPlan && (
+          <div className="hidden md:flex space-x-1">
+            {[
+              { id: 'plan', label: '我的計畫', icon: '📋' },
+              { id: 'calendar', label: '訓練日誌', icon: '📅' },
+              { id: 'stats', label: '身體數據', icon: '📊' },
+              { id: 'stretch', label: '放鬆修復', icon: '🧘' },
+              { id: 'consultant', label: 'AI 顧問', icon: '💬' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                  activeTab === item.id
+                    ? 'bg-slate-800 text-cyan-400'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <span>{item.icon}</span>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+           {hasPlan && (
+             <button onClick={onReset} className="text-sm text-red-400 hover:text-red-300 transition-colors">
+               重設資料
+             </button>
+           )}
+        </div>
+      </div>
+      
+      {/* Mobile Menu */}
+      {hasPlan && (
+        <div className="md:hidden flex justify-between py-2 border-t border-slate-800 overflow-x-auto no-scrollbar">
+           {[
+              { id: 'plan', label: '計畫', icon: '📋' },
+              { id: 'calendar', label: '日誌', icon: '📅' },
+              { id: 'stats', label: '數據', icon: '📊' },
+              { id: 'stretch', label: '放鬆', icon: '🧘' },
+              { id: 'consultant', label: '顧問', icon: '💬' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex-shrink-0 px-3 py-1 rounded-md text-xs font-medium whitespace-nowrap ${
+                  activeTab === item.id
+                    ? 'bg-slate-800 text-cyan-400'
+                    : 'text-slate-500'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+        </div>
+      )}
+    </div>
+  </nav>
 );
 
 const NumberInput = ({ label, value, onChange, unit, step = 1, min = 0, placeholder }: any) => (
   <div className="mb-4">
     <label className="block text-slate-400 text-sm font-medium mb-2">{label}</label>
-    <div className="relative">
+    <div className="relative group">
       <input
         type="number"
         value={value}
@@ -64,7 +91,7 @@ const NumberInput = ({ label, value, onChange, unit, step = 1, min = 0, placehol
         step={step}
         min={min}
         placeholder={placeholder}
-        className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-mono text-lg"
+        className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-mono text-lg transition-all group-hover:border-slate-600"
       />
       {unit && (
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-medium">
@@ -92,9 +119,9 @@ const MultiSelectPills = ({ label, options, selectedValues, onChange }: { label:
           <button
             key={opt}
             onClick={() => toggleOption(opt)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
               selectedValues.includes(opt)
-                ? 'bg-cyan-500 text-white'
+                ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-500/20'
                 : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
             }`}
           >
@@ -106,75 +133,80 @@ const MultiSelectPills = ({ label, options, selectedValues, onChange }: { label:
   );
 };
 
-// --- Calendar Component ---
+// --- Views ---
 
 const CalendarView = ({ checkInDates }: { checkInDates: string[] }) => {
   const today = new Date();
   const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
-  
-  // Get days in month
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay(); // 0 is Sunday
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
 
   const days = [];
-  // Empty slots for days before first day of month
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(null);
-  }
-  // Days of the month
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(i);
-  }
-
-  const monthNames = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+  for (let i = 0; i < firstDayOfMonth; i++) days.push(null);
+  for (let i = 1; i <= daysInMonth; i++) days.push(i);
 
   return (
-    <div className="p-4 bg-slate-900 rounded-2xl shadow-lg border border-slate-800">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold text-white">{monthNames[currentMonth]} {currentYear}</h2>
-        <div className="text-right">
-          <p className="text-xs text-slate-400">本月堅持</p>
-          <p className="text-2xl font-bold text-cyan-400">{checkInDates.filter(d => d.startsWith(`${currentYear}-${String(currentMonth+1).padStart(2, '0')}`)).length} <span className="text-sm text-white">天</span></p>
+    <div className="grid md:grid-cols-3 gap-6 animate-fadeIn">
+      <div className="md:col-span-2 bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-white">{currentYear}年 {currentMonth + 1}月</h2>
+          <div className="px-4 py-2 bg-slate-800 rounded-lg">
+             <span className="text-slate-400 text-xs uppercase tracking-wide">本月堅持</span>
+             <div className="text-2xl font-bold text-cyan-400">
+               {checkInDates.filter(d => d.startsWith(`${currentYear}-${String(currentMonth+1).padStart(2, '0')}`)).length} <span className="text-sm">天</span>
+             </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-7 gap-2 mb-4">
+          {['日', '一', '二', '三', '四', '五', '六'].map(d => (
+            <div key={d} className="text-center text-slate-500 text-sm font-bold">{d}</div>
+          ))}
+        </div>
+        
+        <div className="grid grid-cols-7 gap-2">
+          {days.map((day, index) => {
+            if (!day) return <div key={`empty-${index}`} className="aspect-square"></div>;
+            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const isCheckedIn = checkInDates.includes(dateStr);
+            const isToday = day === today.getDate();
+            return (
+              <div 
+                key={day} 
+                className={`
+                  aspect-square flex flex-col items-center justify-center rounded-xl text-sm font-semibold transition-all relative
+                  ${isCheckedIn ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50 shadow-inner' : 'bg-slate-800/50 text-slate-500 hover:bg-slate-800'}
+                  ${isToday && !isCheckedIn ? 'border-2 border-slate-400 text-white' : ''}
+                `}
+              >
+                {day}
+                {isCheckedIn && <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full mt-1"></span>}
+              </div>
+            );
+          })}
         </div>
       </div>
-      
-      <div className="grid grid-cols-7 gap-2 mb-2">
-        {['日', '一', '二', '三', '四', '五', '六'].map(d => (
-          <div key={d} className="text-center text-slate-500 text-xs font-medium">{d}</div>
-        ))}
-      </div>
-      
-      <div className="grid grid-cols-7 gap-2">
-        {days.map((day, index) => {
-          if (!day) return <div key={`empty-${index}`} className="aspect-square"></div>;
-          
-          const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-          const isCheckedIn = checkInDates.includes(dateStr);
-          const isToday = day === today.getDate();
 
-          return (
-            <div 
-              key={day} 
-              className={`
-                aspect-square flex items-center justify-center rounded-lg text-sm font-semibold relative
-                ${isCheckedIn ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/50' : 'bg-slate-800 text-slate-400'}
-                ${isToday && !isCheckedIn ? 'border border-slate-500 text-white' : ''}
-              `}
-            >
-              {day}
-              {isCheckedIn && (
-                 <div className="absolute bottom-1 w-1 h-1 bg-cyan-400 rounded-full"></div>
-              )}
+      <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 h-fit">
+        <h3 className="text-lg font-bold text-white mb-4">打卡紀錄</h3>
+        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+          {[...checkInDates].reverse().map(date => (
+            <div key={date} className="flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-800">
+               <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center">✓</div>
+               <div>
+                  <div className="text-slate-200 font-medium">{date}</div>
+                  <div className="text-slate-500 text-xs">完成訓練</div>
+               </div>
             </div>
-          );
-        })}
+          ))}
+          {checkInDates.length === 0 && <p className="text-slate-500 text-center py-4">尚無紀錄</p>}
+        </div>
       </div>
     </div>
   );
 };
 
-// --- Stats Component ---
 const StatsView = ({ history, onAddMetric, height }: { history: BodyMetrics[], onAddMetric: (m: BodyMetrics) => void, height: number }) => {
   const [weight, setWeight] = useState<number | ''>('');
   const [bodyFat, setBodyFat] = useState<number | ''>('');
@@ -183,100 +215,113 @@ const StatsView = ({ history, onAddMetric, height }: { history: BodyMetrics[], o
   const [visceralFat, setVisceralFat] = useState<number | ''>('');
 
   const handleSave = () => {
-    if (typeof weight !== 'number') return;
+    if (typeof weight !== 'number' || !weight) return;
     const bmi = weight / ((height / 100) * (height / 100));
     const newMetric: BodyMetrics = {
       date: new Date().toISOString().split('T')[0],
       weight,
       bmi: Number(bmi.toFixed(1)),
-      bodyFat: typeof bodyFat === 'number' ? bodyFat : undefined,
-      muscleMass: typeof muscleMass === 'number' ? muscleMass : undefined,
-      boneMass: typeof boneMass === 'number' ? boneMass : undefined,
-      visceralFat: typeof visceralFat === 'number' ? visceralFat : undefined,
+      bodyFat: typeof bodyFat === 'number' && bodyFat ? bodyFat : undefined,
+      muscleMass: typeof muscleMass === 'number' && muscleMass ? muscleMass : undefined,
+      boneMass: typeof boneMass === 'number' && boneMass ? boneMass : undefined,
+      visceralFat: typeof visceralFat === 'number' && visceralFat ? visceralFat : undefined,
     };
     onAddMetric(newMetric);
     setWeight(''); setBodyFat(''); setMuscleMass(''); setBoneMass(''); setVisceralFat('');
   };
 
-  // Simple Trend Chart Logic
-  const dataPoints = [...history].reverse(); // Oldest first
-  const maxWeight = Math.max(...dataPoints.map(d => d.weight), 0) + 5;
-  const minWeight = Math.min(...dataPoints.map(d => d.weight), 100) - 5;
-  
+  const dataPoints = [...history].reverse();
+  const maxWeight = dataPoints.length > 0 ? Math.max(...dataPoints.map(d => d.weight)) + 2 : 100;
+  const minWeight = dataPoints.length > 0 ? Math.min(...dataPoints.map(d => d.weight)) - 2 : 40;
+
+  const getAdvice = (current: BodyMetrics, previous?: BodyMetrics) => {
+    if (!previous) return "📝 這是你的第一筆紀錄，持續保持追蹤！";
+    const weightDiff = current.weight - previous.weight;
+    const muscleDiff = (current.muscleMass && previous.muscleMass) ? current.muscleMass - previous.muscleMass : 0;
+    
+    if (weightDiff > 0 && muscleDiff > 0) return "💪 增肌成效顯著！體重與肌肉量同時上升。";
+    if (weightDiff < 0 && muscleDiff < 0) return "📉 注意蛋白質攝取，避免肌肉流失。";
+    if (weightDiff < 0) return "🔥 體重下降，持續加油！";
+    return "⚓️ 數據穩定，繼續保持訓練強度。";
+  };
+
   return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800">
-        <h3 className="text-white font-bold mb-4">今日數值更新</h3>
-        <div className="grid grid-cols-2 gap-4">
-           <NumberInput label="體重 (kg)" value={weight} onChange={setWeight} step={0.1} />
-           <NumberInput label="體脂 (%)" value={bodyFat} onChange={setBodyFat} step={0.1} />
-           <NumberInput label="肌肉量 (kg)" value={muscleMass} onChange={setMuscleMass} step={0.1} />
-           <NumberInput label="骨量 (kg)" value={boneMass} onChange={setBoneMass} step={0.1} />
-           <NumberInput label="內臟脂肪" value={visceralFat} onChange={setVisceralFat} step={0.5} />
+    <div className="grid md:grid-cols-2 gap-8 animate-fadeIn">
+      <div className="space-y-6">
+        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-lg">
+          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+            <span className="text-cyan-400">✏️</span> 更新今日數據
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+             <NumberInput label="體重 (kg) *" value={weight} onChange={setWeight} step={0.1} />
+             <NumberInput label="體脂率 (%)" value={bodyFat} onChange={setBodyFat} step={0.1} />
+             <NumberInput label="肌肉量 (kg)" value={muscleMass} onChange={setMuscleMass} step={0.1} />
+             <NumberInput label="骨量 (kg)" value={boneMass} onChange={setBoneMass} step={0.1} />
+             <NumberInput label="內臟脂肪" value={visceralFat} onChange={setVisceralFat} step={0.5} />
+          </div>
+          <button 
+            onClick={handleSave}
+            disabled={!weight}
+            className="w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white py-3 rounded-xl font-bold transition-all shadow-lg disabled:opacity-50 disabled:shadow-none"
+          >
+            上傳紀錄 💾
+          </button>
         </div>
-        <button 
-          onClick={handleSave}
-          disabled={!weight}
-          className="w-full mt-2 bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-xl font-bold transition-colors disabled:opacity-50"
-        >
-          儲存紀錄
-        </button>
+
+        {dataPoints.length > 1 && (
+          <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-lg">
+            <h3 className="text-white font-bold mb-4">體重變化趨勢</h3>
+            <div className="h-48 flex items-end justify-between gap-2 relative border-b border-slate-700/50 pb-2">
+               {dataPoints.map((d, i) => {
+                 const heightPercent = ((d.weight - minWeight) / (maxWeight - minWeight)) * 100;
+                 return (
+                   <div key={i} className="flex flex-col items-center flex-1 group relative">
+                      <div className="absolute opacity-0 group-hover:opacity-100 bottom-full mb-2 bg-slate-700 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-10 transition-opacity">
+                        {d.weight}kg ({d.date})
+                      </div>
+                      <div 
+                        className="w-full bg-cyan-500 rounded-t-sm opacity-60 hover:opacity-100 transition-opacity"
+                        style={{ height: `${Math.max(heightPercent, 5)}%` }}
+                      ></div>
+                   </div>
+                 );
+               })}
+            </div>
+            <div className="flex justify-between text-xs text-slate-500 mt-2">
+              <span>{dataPoints[0].date}</span>
+              <span>{dataPoints[dataPoints.length - 1].date}</span>
+            </div>
+          </div>
+        )}
       </div>
 
-      {dataPoints.length > 1 && (
-        <div className="bg-slate-900 rounded-2xl p-5 border border-slate-800">
-          <h3 className="text-white font-bold mb-4">體重趨勢</h3>
-          <div className="h-40 flex items-end justify-between gap-1 px-2 relative">
-             {dataPoints.map((d, i) => {
-               const heightPercent = ((d.weight - minWeight) / (maxWeight - minWeight)) * 100;
-               return (
-                 <div key={i} className="flex flex-col items-center flex-1 group">
-                    <div className="absolute opacity-0 group-hover:opacity-100 bottom-full mb-2 bg-slate-700 text-white text-xs px-2 py-1 rounded transition-opacity">
-                      {d.weight}kg ({d.date})
-                    </div>
-                    <div 
-                      className="w-full bg-cyan-500/50 rounded-t-sm hover:bg-cyan-400 transition-colors"
-                      style={{ height: `${Math.max(heightPercent, 10)}%` }}
-                    ></div>
-                 </div>
-               );
-             })}
-          </div>
-          <div className="flex justify-between text-xs text-slate-500 mt-2">
-            <span>{dataPoints[0].date}</span>
-            <span>{dataPoints[dataPoints.length - 1].date}</span>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
-         <div className="p-4 bg-slate-800/50 border-b border-slate-700">
+      <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-lg overflow-hidden flex flex-col max-h-[600px]">
+         <div className="p-5 bg-slate-800 border-b border-slate-700">
            <h3 className="text-white font-bold">歷史紀錄</h3>
          </div>
-         <div className="max-h-80 overflow-y-auto">
+         <div className="overflow-y-auto flex-1 p-0 custom-scrollbar">
             {history.map((record, idx) => (
-              <div key={idx} className="p-4 border-b border-slate-800/50 hover:bg-slate-800/20 transition-colors">
-                 <div className="flex justify-between mb-1">
-                    <span className="text-slate-300 font-mono text-sm">{record.date}</span>
-                    <span className="text-cyan-400 font-bold">{record.weight} kg</span>
+              <div key={idx} className="p-5 border-b border-slate-800 hover:bg-slate-800/30 transition-colors">
+                 <div className="flex justify-between items-center mb-2">
+                    <span className="text-slate-400 text-sm font-mono">{record.date}</span>
+                    <span className="text-xl font-bold text-white">{record.weight} <span className="text-sm text-slate-500">kg</span></span>
                  </div>
-                 <div className="flex gap-3 text-xs text-slate-500">
-                    <span>BMI: {record.bmi}</span>
-                    {record.bodyFat && <span>體脂: {record.bodyFat}%</span>}
-                    {record.muscleMass && <span>肌肉: {record.muscleMass}kg</span>}
+                 <div className="grid grid-cols-3 gap-2 text-xs text-slate-400 bg-slate-950/50 p-3 rounded-lg">
+                    <div>BMI: <span className="text-white">{record.bmi}</span></div>
+                    {record.bodyFat && <div>體脂: <span className="text-white">{record.bodyFat}%</span></div>}
+                    {record.muscleMass && <div>肌肉: <span className="text-white">{record.muscleMass}kg</span></div>}
+                    {record.visceralFat && <div>內臟脂肪: <span className="text-white">{record.visceralFat}</span></div>}
                  </div>
-                 {/* Simple Logic Based Advice */}
-                 <div className="mt-2 text-xs text-slate-400 italic bg-slate-800/30 p-2 rounded">
-                    {idx === 0 ? "📝 最新紀錄" : 
-                      record.weight > history[idx+1]?.weight 
-                      ? "💪 體重上升，請確認是肌肉增加還是體脂增加。" 
-                      : "🔥 體重下降，請注意蛋白質攝取維持肌肉量。"
-                    }
+                 <div className="mt-3 text-xs text-cyan-400/90 italic flex items-center gap-1">
+                    <span>💡</span> {getAdvice(record, history[idx + 1])}
                  </div>
               </div>
             ))}
             {history.length === 0 && (
-              <div className="p-8 text-center text-slate-500 text-sm">尚無紀錄</div>
+              <div className="p-10 text-center text-slate-500">
+                 <p className="text-4xl mb-2">📊</p>
+                 <p>尚未輸入任何數據</p>
+              </div>
             )}
          </div>
       </div>
@@ -287,6 +332,7 @@ const StatsView = ({ history, onAddMetric, height }: { history: BodyMetrics[], o
 // --- Main App ---
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('plan');
   const [profile, setProfile] = useState<UserProfile>({
     age: 16,
     gender: 'male',
@@ -299,45 +345,41 @@ export default function App() {
     currentBodyFat: undefined,
     targetBodyFat: undefined
   });
-
-  const [loading, setLoading] = useState(false);
+  
   const [plan, setPlan] = useState<FitnessPlan | null>(null);
-  const [activeTab, setActiveTab] = useState<'plan' | 'calendar' | 'stats' | 'consultant' | 'stretch'>('plan');
-  
-  // Dashboard states
+  const [loading, setLoading] = useState(false);
+  const [checkInDates, setCheckInDates] = useState<string[]>([]);
+  const [checkedExercises, setCheckedExercises] = useState<{[key: string]: boolean}>({});
+  const [metricsHistory, setMetricsHistory] = useState<BodyMetrics[]>([]);
   const [activeDay, setActiveDay] = useState(0);
-  
-  // Consultant state
+
+  // Chat
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Check-in State
-  const [checkInDates, setCheckInDates] = useState<string[]>([]);
-  const [checkedExercises, setCheckedExercises] = useState<{[key: string]: boolean}>({});
-
-  // Stats History
-  const [metricsHistory, setMetricsHistory] = useState<BodyMetrics[]>([]);
-
+  // Load Data with Error Boundary Logic
   useEffect(() => {
-    // Load state from local storage
-    const savedPlan = localStorage.getItem('fitnessPlan');
-    const savedProfile = localStorage.getItem('userProfile');
-    const savedDates = localStorage.getItem('checkInDates');
-    const savedHistory = localStorage.getItem('metricsHistory');
-    
-    if (savedPlan) setPlan(JSON.parse(savedPlan));
-    if (savedProfile) setProfile(JSON.parse(savedProfile));
-    if (savedDates) setCheckInDates(JSON.parse(savedDates));
-    if (savedHistory) setMetricsHistory(JSON.parse(savedHistory));
+    try {
+      const savedPlan = localStorage.getItem('fitnessPlan');
+      const savedProfile = localStorage.getItem('userProfile');
+      const savedDates = localStorage.getItem('checkInDates');
+      const savedHistory = localStorage.getItem('metricsHistory');
+
+      if (savedPlan) setPlan(JSON.parse(savedPlan));
+      if (savedProfile) setProfile(JSON.parse(savedProfile));
+      if (savedDates) setCheckInDates(JSON.parse(savedDates));
+      if (savedHistory) setMetricsHistory(JSON.parse(savedHistory));
+    } catch (e) {
+      console.error("Data corruption detected, resetting storage");
+      localStorage.clear();
+    }
   }, []);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chatMessages, activeTab]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
 
   const handleCreatePlan = async () => {
     setLoading(true);
@@ -346,498 +388,358 @@ export default function App() {
       setPlan(generatedPlan);
       localStorage.setItem('fitnessPlan', JSON.stringify(generatedPlan));
       localStorage.setItem('userProfile', JSON.stringify(profile));
-      setActiveTab('plan');
-      setChatMessages([{ role: 'model', text: '你好！我是你的 AI 健身教練。你的計畫已經生成完畢，有任何問題都可以隨時問我！' }]);
+      setChatMessages([{ role: 'model', text: '你好！我是你的 AI 健身教練。計畫已生成，準備好開始改變了嗎？' }]);
     } catch (error) {
-      alert("生成計畫失敗，請檢查網路連線或稍後再試。");
+      alert("生成失敗，請檢查網路連線。");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdateWeight = async () => {
-    if (!window.confirm("更新體重將會重新計算你的營養攝取建議，確定嗎？")) return;
-    await handleCreatePlan();
+  const handleReset = () => {
+    if (confirm("確定要刪除所有資料並重新開始嗎？")) {
+      localStorage.clear();
+      window.location.reload();
+    }
   };
 
-  const handleReset = () => {
-    if (window.confirm("確定要重設所有資料嗎？這將刪除目前的計畫與進度。")) {
-      localStorage.removeItem('fitnessPlan');
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('checkInDates');
-      localStorage.removeItem('metricsHistory');
-      setPlan(null);
-      setCheckInDates([]);
-      setCheckedExercises({});
-      setChatMessages([]);
-      setMetricsHistory([]);
-      setProfile({
-        age: 16,
-        gender: 'male',
-        height: 170,
-        weight: 60,
-        targetWeight: 65,
-        timeline: 12,
-        equipment: ['啞鈴'],
-        goal: 'muscle_gain',
-        currentBodyFat: undefined,
-        targetBodyFat: undefined
-      });
+  const handleCheckIn = () => {
+    const today = new Date().toISOString().split('T')[0];
+    if (!checkInDates.includes(today)) {
+      const newDates = [...checkInDates, today];
+      setCheckInDates(newDates);
+      localStorage.setItem('checkInDates', JSON.stringify(newDates));
     }
   };
 
   const handleSendMessage = async () => {
     if (!chatInput.trim() || isChatLoading) return;
-    
-    const newMessage: ChatMessage = { role: 'user', text: chatInput };
-    setChatMessages(prev => [...prev, newMessage]);
+    const msg = chatInput;
     setChatInput('');
+    setChatMessages(prev => [...prev, { role: 'user', text: msg }]);
     setIsChatLoading(true);
-
     try {
-      const response = await getConsultationResponse(chatInput);
+      const response = await getConsultationResponse(msg);
       setChatMessages(prev => [...prev, { role: 'model', text: response }]);
-    } catch (error) {
-      setChatMessages(prev => [...prev, { role: 'model', text: "抱歉，連線發生錯誤。" }]);
+    } catch {
+      setChatMessages(prev => [...prev, { role: 'model', text: "連線錯誤，請稍後再試。" }]);
     } finally {
       setIsChatLoading(false);
     }
   };
 
-  const toggleExerciseCheck = (dayIndex: number, exerciseIndex: number) => {
-    const key = `${dayIndex}-${exerciseIndex}`;
-    setCheckedExercises(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
+  // --- Rendering ---
 
-  const handleDailyCheckIn = () => {
-    const today = new Date().toISOString().split('T')[0];
-    if (checkInDates.includes(today)) return;
-
-    const newDates = [...checkInDates, today];
-    setCheckInDates(newDates);
-    localStorage.setItem('checkInDates', JSON.stringify(newDates));
-    alert("打卡成功！繼續保持！🔥");
-  };
-
-  const handleAddMetric = (metric: BodyMetrics) => {
-    const newHistory = [metric, ...metricsHistory];
-    setMetricsHistory(newHistory);
-    localStorage.setItem('metricsHistory', JSON.stringify(newHistory));
-    
-    // Optionally update current weight in profile but don't regenerate plan automatically unless requested
-    setProfile(prev => ({ ...prev, weight: metric.weight }));
-    if (metric.bodyFat) setProfile(prev => ({ ...prev, currentBodyFat: metric.bodyFat }));
-    
-    alert("數據已更新！📊");
-  };
-
+  // 1. Onboarding Form
   if (!plan) {
     return (
-      <div className="min-h-screen p-6 max-w-lg mx-auto pb-24">
-        <header className="mb-8 text-center">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
-            AI 健身教練
-          </h1>
-          <p className="text-slate-400 text-sm">專為高中生打造的智能增肌計畫</p>
-        </header>
+      <div className="min-h-screen bg-slate-950 flex flex-col">
+        <Navbar activeTab="" setActiveTab={() => {}} hasPlan={false} />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-2xl bg-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-800 animate-fadeIn">
+            <header className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-white mb-2">建立你的專屬計畫</h1>
+              <p className="text-slate-400">輸入基本資料，AI 將為你量身打造高中生增肌課表</p>
+            </header>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+               <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <label className="block text-slate-400 text-sm font-medium mb-2">性別</label>
+                        <select 
+                            className="w-full bg-slate-800 text-white p-3 rounded-lg border border-slate-700"
+                            value={profile.gender}
+                            onChange={(e:any) => setProfile({...profile, gender: e.target.value})}
+                        >
+                            <option value="male">男</option>
+                            <option value="female">女</option>
+                        </select>
+                    </div>
+                    <NumberInput label="年齡" value={profile.age} onChange={(v:number) => setProfile({...profile, age:v})} />
+                  </div>
+                  <NumberInput label="身高 (cm)" value={profile.height} onChange={(v:number) => setProfile({...profile, height:v})} />
+                  <NumberInput label="體重 (kg)" value={profile.weight} onChange={(v:number) => setProfile({...profile, weight:v})} step={0.1} />
+               </div>
+               
+               <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <NumberInput label="目標體重" value={profile.targetWeight} onChange={(v:number) => setProfile({...profile, targetWeight:v})} step={0.1} />
+                    <NumberInput label="計畫週數" value={profile.timeline} onChange={(v:number) => setProfile({...profile, timeline:v})} />
+                  </div>
+                   <div>
+                        <label className="block text-slate-400 text-sm font-medium mb-2">主要目標</label>
+                        <select 
+                            className="w-full bg-slate-800 text-white p-3 rounded-lg border border-slate-700"
+                            value={profile.goal}
+                            onChange={(e:any) => setProfile({...profile, goal: e.target.value})}
+                        >
+                            <option value="muscle_gain">增肌 (Muscle Gain)</option>
+                            <option value="fat_loss">減脂 (Fat Loss)</option>
+                        </select>
+                    </div>
+               </div>
+            </div>
 
-        <div className="bg-slate-900 rounded-2xl p-6 shadow-xl border border-slate-800 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <SelectField 
-              label="性別" 
-              value={profile.gender} 
-              onChange={(e: any) => setProfile({...profile, gender: e.target.value})}
-              options={[{value: 'male', label: '男'}, {value: 'female', label: '女'}]} 
-            />
-            <NumberInput label="年齡" value={profile.age} onChange={(v: number) => setProfile({...profile, age: v})} />
+            <div className="mt-6">
+                <MultiSelectPills
+                    label="可用器材"
+                    options={['無器材(徒手)', '啞鈴', '槓鈴', '彈力帶', '單槓', '機械器材']}
+                    selectedValues={profile.equipment}
+                    onChange={(vals) => setProfile({...profile, equipment: vals})}
+                />
+            </div>
+
+            <button
+                onClick={handleCreatePlan}
+                disabled={loading}
+                className="w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-lg font-bold py-4 rounded-xl shadow-lg transition-transform transform active:scale-[0.99] disabled:opacity-50 flex justify-center items-center gap-2"
+            >
+                {loading ? 'AI 正在計算代謝率與生成課表...' : '開始生成計畫 🚀'}
+            </button>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <NumberInput label="身高 (cm)" value={profile.height} onChange={(v: number) => setProfile({...profile, height: v})} />
-            <NumberInput label="目前體重 (kg)" value={profile.weight} onChange={(v: number) => setProfile({...profile, weight: v})} step={0.1} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-             <NumberInput label="目標體重 (kg)" value={profile.targetWeight} onChange={(v: number) => setProfile({...profile, targetWeight: v})} step={0.1} />
-             <NumberInput label="目標時間 (週)" value={profile.timeline} onChange={(v: number) => setProfile({...profile, timeline: v})} />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <NumberInput label="目前體脂率 % (選填)" value={profile.currentBodyFat || ''} onChange={(v: number) => setProfile({...profile, currentBodyFat: v})} step={0.1} />
-            <NumberInput label="目標體脂率 % (選填)" value={profile.targetBodyFat || ''} onChange={(v: number) => setProfile({...profile, targetBodyFat: v})} step={0.1} />
-          </div>
-
-          <SelectField 
-              label="主要目標" 
-              value={profile.goal} 
-              onChange={(e: any) => setProfile({...profile, goal: e.target.value})}
-              options={[{value: 'muscle_gain', label: '增肌 (Muscle Gain)'}, {value: 'fat_loss', label: '減脂 (Fat Loss)'}]} 
-          />
-
-          <MultiSelectPills
-            label="可用器材 (可多選)"
-            options={['無器材(徒手)', '啞鈴', '槓鈴', '彈力帶', '單槓', '健身房機械', '壺鈴']}
-            selectedValues={profile.equipment}
-            onChange={(vals) => setProfile({...profile, equipment: vals})}
-          />
-
-          <button
-            onClick={handleCreatePlan}
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-4 rounded-xl shadow-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                AI 計算中...
-              </>
-            ) : (
-              '生成專屬計畫 🚀'
-            )}
-          </button>
         </div>
       </div>
     );
   }
 
+  // 2. Main Dashboard
   return (
-    <div className="min-h-screen pb-24 relative bg-slate-950">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 py-3 flex justify-between items-center">
-        <h1 className="text-lg font-bold text-white">AI 健身教練</h1>
-        <div className="flex gap-2">
-            <button onClick={handleReset} className="text-xs text-red-400 px-3 py-1 rounded-full border border-red-400/30 hover:bg-red-400/10">
-            重設
-            </button>
-            <button onClick={() => setPlan(null)} className="text-xs text-slate-400 px-3 py-1 rounded-full border border-slate-700 hover:bg-slate-800">
-            編輯資料
-            </button>
-        </div>
-      </div>
-
-      <div className="p-4 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans">
+      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} onReset={handleReset} hasPlan={true} />
+      
+      <main className="max-w-6xl mx-auto p-4 md:p-8">
+        
+        {/* VIEW: PLAN */}
         {activeTab === 'plan' && (
-          <div className="space-y-6 animate-fadeIn">
-            {/* Stats Card */}
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 border border-slate-700 shadow-lg">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-slate-400 text-xs font-medium uppercase tracking-wider">每日熱量</h2>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-3xl font-bold text-white">{plan.dailyCalories}</span>
-                    <span className="text-sm text-cyan-400 font-medium">kcal</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-slate-400 text-xs mb-1">目前進度</div>
-                  <div className="flex items-center gap-2 justify-end">
-                    <span className="text-white font-mono">{profile.weight}</span>
-                    <span className="text-slate-500">→</span>
-                    <span className="text-cyan-400 font-bold font-mono">{profile.targetWeight} kg</span>
-                  </div>
-                  <button onClick={handleUpdateWeight} className="text-xs text-cyan-500 mt-1 hover:underline">
-                    重新計算計畫
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-slate-950/50 rounded-xl p-3 text-center border border-slate-700/50">
-                  <div className="text-cyan-400 text-lg font-bold">{plan.macros.protein}g</div>
-                  <div className="text-slate-500 text-xs">蛋白質</div>
-                </div>
-                <div className="bg-slate-900/50 rounded-xl p-3 text-center border border-slate-700/50">
-                  <div className="text-white text-lg font-bold">{plan.macros.carbs}g</div>
-                  <div className="text-slate-500 text-xs">碳水</div>
-                </div>
-                <div className="bg-slate-900/50 rounded-xl p-3 text-center border border-slate-700/50">
-                  <div className="text-yellow-400 text-lg font-bold">{plan.macros.fats}g</div>
-                  <div className="text-slate-500 text-xs">脂肪</div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Water Intake Card */}
-            <div className="bg-blue-900/20 rounded-2xl p-4 border border-blue-800/50 flex items-center justify-between">
-                <div>
-                    <h3 className="text-blue-200 font-bold flex items-center gap-2">
-                         💧 每日飲水建議
-                    </h3>
-                    <p className="text-xs text-blue-300/70 mt-1">根據你的體重與活動量</p>
-                </div>
-                <div className="text-right">
-                    <span className="text-2xl font-bold text-blue-100">{plan.waterIntake}</span>
-                    <span className="text-sm text-blue-300 ml-1">ml</span>
-                </div>
-            </div>
-
-            {/* Workout Section */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-white font-bold text-lg">本週訓練課表</h3>
-                <span className="text-xs px-2 py-1 bg-cyan-500/10 text-cyan-400 rounded-full border border-cyan-500/20">
-                  {plan.weeklySchedule[activeDay].day}
-                </span>
-              </div>
-              
-              {/* Day Tabs */}
-              <div className="flex gap-2 overflow-x-auto pb-2 mb-2 no-scrollbar">
-                {plan.weeklySchedule.map((day, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveDay(idx)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                      activeDay === idx
-                        ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25'
-                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-                    }`}
-                  >
-                    {day.day.replace(/Day\s/i, 'D')}
-                  </button>
-                ))}
-              </div>
-
-              <div className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
-                <div className="p-4 bg-slate-800/50 border-b border-slate-700">
-                  <h4 className="font-bold text-white text-lg">{plan.weeklySchedule[activeDay].focus}</h4>
-                </div>
-                <div className="p-2">
-                  {plan.weeklySchedule[activeDay].exercises.map((ex, exIdx) => (
-                    <div key={exIdx} className="flex items-start gap-3 p-3 border-b border-slate-800/50 last:border-0 hover:bg-slate-800/30 transition-colors rounded-lg">
-                      <div className="pt-1">
-                        <input 
-                            type="checkbox" 
-                            checked={!!checkedExercises[`${activeDay}-${exIdx}`]}
-                            onChange={() => toggleExerciseCheck(activeDay, exIdx)}
-                            className="w-5 h-5 rounded border-slate-600 text-cyan-500 focus:ring-cyan-500 bg-slate-700"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className={`font-medium ${checkedExercises[`${activeDay}-${exIdx}`] ? 'text-slate-500 line-through' : 'text-slate-200'}`}>
-                              {ex.name}
-                          </span>
-                        </div>
-                        <div className="flex gap-3 text-sm text-slate-400">
-                          <span className="bg-slate-800 px-2 py-0.5 rounded text-xs">{ex.sets} 組</span>
-                          <span className="bg-slate-800 px-2 py-0.5 rounded text-xs">{ex.reps} 下</span>
-                        </div>
-                        {ex.notes && <p className="text-xs text-slate-500 mt-1 italic">{ex.notes}</p>}
-                      </div>
+           <div className="grid md:grid-cols-12 gap-6 animate-fadeIn">
+              {/* Left Column: Stats & Nutrition */}
+              <div className="md:col-span-4 space-y-6">
+                 {/* Calories Card */}
+                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-lg relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <svg className="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                     </div>
-                  ))}
-                </div>
-                {/* Check in Button for the active day */}
-                <div className="p-4 border-t border-slate-800 bg-slate-800/20">
-                    <button 
-                        onClick={handleDailyCheckIn}
-                        disabled={checkInDates.includes(new Date().toISOString().split('T')[0])}
-                        className={`w-full py-3 rounded-xl font-bold text-center transition-all ${
-                            checkInDates.includes(new Date().toISOString().split('T')[0])
-                            ? 'bg-green-500/20 text-green-500 cursor-default'
-                            : 'bg-cyan-500 hover:bg-cyan-400 text-white shadow-lg'
-                        }`}
-                    >
-                        {checkInDates.includes(new Date().toISOString().split('T')[0]) ? '今日已完成簽到 ✅' : '完成今日訓練並簽到'}
-                    </button>
-                </div>
-              </div>
-            </div>
+                    <h3 className="text-slate-400 text-sm font-bold uppercase mb-2">每日目標熱量</h3>
+                    <div className="flex items-baseline gap-2">
+                        <span className="text-5xl font-bold text-white">{plan.dailyCalories}</span>
+                        <span className="text-cyan-400 font-medium">kcal</span>
+                    </div>
+                    
+                    <div className="mt-6 grid grid-cols-3 gap-2">
+                        <div className="bg-slate-950/50 p-3 rounded-xl text-center border border-slate-800">
+                            <div className="text-cyan-400 font-bold text-xl">{plan.macros.protein}g</div>
+                            <div className="text-xs text-slate-500">蛋白質</div>
+                        </div>
+                        <div className="bg-slate-950/50 p-3 rounded-xl text-center border border-slate-800">
+                            <div className="text-white font-bold text-xl">{plan.macros.carbs}g</div>
+                            <div className="text-xs text-slate-500">碳水</div>
+                        </div>
+                        <div className="bg-slate-950/50 p-3 rounded-xl text-center border border-slate-800">
+                            <div className="text-yellow-500 font-bold text-xl">{plan.macros.fats}g</div>
+                            <div className="text-xs text-slate-500">脂肪</div>
+                        </div>
+                    </div>
+                 </div>
 
-            {/* Quick Tips */}
-            <div className="space-y-4">
-               <div className="bg-slate-900 rounded-xl p-5 border border-slate-800">
-                  <h3 className="text-white font-bold mb-3 flex items-center gap-2">
-                    <span className="text-xl">🥗</span> 飲食建議
-                  </h3>
-                  <ul className="space-y-2">
-                    {plan.dietSuggestions.slice(0, 3).map((tip, i) => (
-                      <li key={i} className="text-slate-400 text-sm flex items-start gap-2">
-                        <span className="text-cyan-500 mt-1">•</span> {tip}
-                      </li>
-                    ))}
-                  </ul>
-               </div>
+                 {/* Water Intake Card */}
+                 <div className="bg-blue-900/20 rounded-2xl p-6 border border-blue-800/30 shadow-lg flex items-center justify-between">
+                    <div>
+                        <h3 className="text-blue-200 font-bold flex items-center gap-2 text-lg">
+                            💧 每日飲水
+                        </h3>
+                        <p className="text-sm text-blue-300/70 mt-1">基礎代謝需求</p>
+                    </div>
+                    <div className="text-right">
+                        <span className="text-3xl font-bold text-blue-100">{plan.waterIntake}</span>
+                        <span className="text-sm text-blue-300 ml-1">ml</span>
+                    </div>
+                 </div>
 
-               <div className="bg-slate-900 rounded-xl p-5 border border-slate-800">
-                  <h3 className="text-white font-bold mb-3 flex items-center gap-2">
-                    <span className="text-xl">💡</span> 專家叮嚀
-                  </h3>
-                  <p className="text-slate-400 text-sm leading-relaxed whitespace-pre-line">
-                    {plan.ageSpecificAdvice}
-                  </p>
-               </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'calendar' && (
-          <div className="space-y-6 animate-fadeIn">
-            <h2 className="text-2xl font-bold text-white mb-4">訓練行事曆 📅</h2>
-            <CalendarView checkInDates={checkInDates} />
-            
-            <div className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-                <h3 className="text-white font-bold mb-3">簽到紀錄</h3>
-                {checkInDates.length === 0 ? (
-                    <p className="text-slate-500 text-sm text-center py-4">目前還沒有簽到紀錄，開始你的第一次訓練吧！</p>
-                ) : (
-                    <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                        {[...checkInDates].reverse().map(date => (
-                            <div key={date} className="flex justify-between items-center bg-slate-800/50 p-3 rounded-lg">
-                                <span className="text-slate-300 font-mono">{date}</span>
-                                <span className="text-green-400 text-xs font-bold px-2 py-1 bg-green-400/10 rounded-full">已完成</span>
-                            </div>
+                 {/* Advice Card */}
+                 <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+                    <h3 className="text-white font-bold mb-4">💡 AI 飲食建議</h3>
+                    <ul className="space-y-3">
+                        {plan.dietSuggestions.slice(0, 3).map((s, i) => (
+                            <li key={i} className="flex gap-3 text-sm text-slate-300">
+                                <span className="text-cyan-500 font-bold">•</span>
+                                {s}
+                            </li>
                         ))}
+                    </ul>
+                 </div>
+              </div>
+
+              {/* Right Column: Workout Schedule */}
+              <div className="md:col-span-8">
+                 <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden min-h-[600px] flex flex-col">
+                    <div className="p-4 bg-slate-800/50 border-b border-slate-700 overflow-x-auto">
+                        <div className="flex space-x-2 min-w-max">
+                            {plan.weeklySchedule.map((day, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setActiveDay(idx)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
+                                        activeDay === idx 
+                                        ? 'bg-cyan-600 text-white shadow-lg' 
+                                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+                                    }`}
+                                >
+                                    {day.day}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                )}
-            </div>
-          </div>
-        )}
 
-        {activeTab === 'stats' && (
-           <div className="space-y-6 animate-fadeIn">
-              <h2 className="text-2xl font-bold text-white mb-4">身體數據追蹤 📊</h2>
-              <StatsView history={metricsHistory} onAddMetric={handleAddMetric} height={profile.height} />
+                    <div className="p-6 flex-1 flex flex-col">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold text-white">{plan.weeklySchedule[activeDay].focus}</h2>
+                            <span className="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-400 border border-slate-700">
+                                {plan.weeklySchedule[activeDay].exercises.length} 個動作
+                            </span>
+                        </div>
+                        
+                        <div className="space-y-3 flex-1">
+                            {plan.weeklySchedule[activeDay].exercises.map((ex, i) => (
+                                <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-slate-950/30 border border-slate-800/50 hover:border-cyan-500/30 transition-colors group">
+                                    <input 
+                                        type="checkbox" 
+                                        className="mt-1 w-5 h-5 rounded border-slate-600 bg-slate-800 text-cyan-500 focus:ring-cyan-500 cursor-pointer"
+                                        checked={!!checkedExercises[`${activeDay}-${i}`]}
+                                        onChange={() => setCheckedExercises(prev => ({...prev, [`${activeDay}-${i}`]: !prev[`${activeDay}-${i}`]}))}
+                                    />
+                                    <div className="flex-1">
+                                        <div className="flex justify-between">
+                                            <span className={`font-bold text-lg ${checkedExercises[`${activeDay}-${i}`] ? 'text-slate-600 line-through' : 'text-slate-200'}`}>
+                                                {ex.name}
+                                            </span>
+                                        </div>
+                                        <div className="flex gap-4 mt-2 text-sm text-slate-400">
+                                            <span className="bg-slate-800 px-2 py-1 rounded text-cyan-400 font-mono">{ex.sets} 組</span>
+                                            <span className="bg-slate-800 px-2 py-1 rounded text-cyan-400 font-mono">{ex.reps} 下</span>
+                                        </div>
+                                        {ex.notes && <p className="text-xs text-slate-500 mt-2 italic">{ex.notes}</p>}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-8 pt-6 border-t border-slate-800">
+                            <button 
+                                onClick={handleCheckIn}
+                                disabled={checkInDates.includes(new Date().toISOString().split('T')[0])}
+                                className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${
+                                    checkInDates.includes(new Date().toISOString().split('T')[0])
+                                    ? 'bg-green-600/20 text-green-500 cursor-default border border-green-600/30'
+                                    : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg'
+                                }`}
+                            >
+                                {checkInDates.includes(new Date().toISOString().split('T')[0]) ? '🎉 今日訓練已完成！' : '完成今日訓練並簽到'}
+                            </button>
+                        </div>
+                    </div>
+                 </div>
+              </div>
            </div>
         )}
 
+        {/* VIEW: STATS */}
+        {activeTab === 'stats' && <StatsView history={metricsHistory} onAddMetric={(m) => {
+            const newH = [m, ...metricsHistory];
+            setMetricsHistory(newH);
+            localStorage.setItem('metricsHistory', JSON.stringify(newH));
+            setProfile(p => ({...p, weight: m.weight}));
+        }} height={profile.height} />}
+
+        {/* VIEW: CALENDAR */}
+        {activeTab === 'calendar' && <CalendarView checkInDates={checkInDates} />}
+
+        {/* VIEW: STRETCH */}
         {activeTab === 'stretch' && (
-           <div className="space-y-6 animate-fadeIn">
-             <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-2xl p-6 shadow-lg border border-indigo-700/50 text-center">
-                <h2 className="text-2xl font-bold text-white mb-1">{plan.stretchingRoutine.focus}</h2>
-                <p className="text-indigo-200 text-sm">每次訓練後的放鬆時刻</p>
-             </div>
-
-             <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
-                <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                   ⚠️ 注意事項
-                </h3>
-                <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                    {plan.stretchingRoutine.tips}
-                </p>
-
-                <h3 className="text-white font-bold mb-4 flex items-center gap-2">
-                   🧘 建議動作
-                </h3>
-                <div className="space-y-3">
-                    {plan.stretchingRoutine.movements.map((move, idx) => (
-                        <div key={idx} className="flex items-center gap-4 bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
-                            <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">
-                                {idx + 1}
-                            </div>
-                            <span className="text-slate-200 font-medium">{move}</span>
-                        </div>
-                    ))}
+            <div className="max-w-3xl mx-auto space-y-8 animate-fadeIn">
+                <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-8 text-center shadow-2xl border border-indigo-500/30">
+                    <h2 className="text-3xl font-bold text-white mb-2">{plan.stretchingRoutine.focus}</h2>
+                    <p className="text-indigo-200">專屬你的課後修復菜單</p>
                 </div>
-             </div>
-           </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+                        <h3 className="text-xl font-bold text-white mb-4">⚠️ 關鍵提示</h3>
+                        <p className="text-slate-300 leading-relaxed whitespace-pre-line">{plan.stretchingRoutine.tips}</p>
+                    </div>
+                    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
+                         <h3 className="text-xl font-bold text-white mb-4">🧘 推薦動作</h3>
+                         <ul className="space-y-4">
+                            {plan.stretchingRoutine.movements.map((m, i) => (
+                                <li key={i} className="flex items-center gap-4 bg-slate-800/50 p-3 rounded-lg">
+                                    <span className="w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">{i+1}</span>
+                                    <span className="text-slate-200">{m}</span>
+                                </li>
+                            ))}
+                         </ul>
+                    </div>
+                </div>
+            </div>
         )}
 
+        {/* VIEW: CONSULTANT */}
         {activeTab === 'consultant' && (
-          <div className="h-[calc(100vh-180px)] flex flex-col">
-            <div className="bg-slate-900 rounded-2xl p-4 border border-slate-800 flex-1 flex flex-col shadow-lg overflow-hidden">
-                <div className="flex-1 overflow-y-auto space-y-4 p-2 no-scrollbar mb-4">
-                    {chatMessages.length === 0 && (
-                        <div className="text-center text-slate-500 mt-10">
-                            <p className="mb-2">👋 有什麼想問的嗎？</p>
-                            <p className="text-xs">例如：「這個課表太累了怎麼辦？」、「我最近膝蓋痛可以做什麼替代動作？」</p>
+            <div className="max-w-3xl mx-auto bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden h-[600px] flex flex-col animate-fadeIn">
+                <div className="p-4 bg-slate-800 border-b border-slate-700 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-white font-bold">AI</div>
+                    <div>
+                        <div className="font-bold text-white">私人健身顧問</div>
+                        <div className="text-xs text-green-400 flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> 線上
                         </div>
-                    )}
-                    {chatMessages.map((msg, idx) => (
-                        <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed ${
+                    </div>
+                </div>
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-slate-900/50">
+                    {chatMessages.map((msg, i) => (
+                        <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
                                 msg.role === 'user' 
-                                ? 'bg-cyan-600 text-white rounded-tr-none' 
-                                : 'bg-slate-800 text-slate-300 rounded-tl-none border border-slate-700'
+                                ? 'bg-cyan-600 text-white rounded-tr-sm' 
+                                : 'bg-slate-800 text-slate-200 border border-slate-700 rounded-tl-sm'
                             }`}>
                                 {msg.text}
                             </div>
                         </div>
                     ))}
-                     {isChatLoading && (
+                    {isChatLoading && (
                         <div className="flex justify-start">
-                             <div className="bg-slate-800 rounded-2xl rounded-tl-none p-3 border border-slate-700 flex gap-1">
-                                <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></span>
-                                <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-75"></span>
-                                <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-150"></span>
+                             <div className="bg-slate-800 p-4 rounded-2xl rounded-tl-sm border border-slate-700 flex gap-2">
+                                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></div>
+                                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-75"></div>
+                                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-150"></div>
                              </div>
                         </div>
                     )}
-                    <div ref={messagesEndRef} />
+                    <div ref={messagesEndRef}></div>
                 </div>
-
-                <div className="relative">
-                    <input
-                        type="text"
-                        value={chatInput}
-                        onChange={(e) => setChatInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                        placeholder="輸入問題..."
-                        className="w-full bg-slate-950 border border-slate-700 text-white rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-500/50"
-                        disabled={isChatLoading}
-                    />
-                    <button 
-                        onClick={handleSendMessage}
-                        disabled={!chatInput.trim() || isChatLoading}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-cyan-500 hover:text-cyan-400 disabled:opacity-50"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                            <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-                        </svg>
-                    </button>
+                <div className="p-4 bg-slate-800 border-t border-slate-700">
+                    <div className="relative">
+                        <input 
+                            type="text" 
+                            className="w-full bg-slate-900 border border-slate-600 text-white rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                            placeholder="問問教練關於飲食或訓練的問題..."
+                            value={chatInput}
+                            onChange={e => setChatInput(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleSendMessage()}
+                        />
+                        <button 
+                            onClick={handleSendMessage}
+                            disabled={!chatInput.trim() || isChatLoading}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-cyan-500 hover:text-cyan-400 disabled:opacity-50"
+                        >
+                            ➤
+                        </button>
+                    </div>
                 </div>
             </div>
-          </div>
         )}
-      </div>
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-lg border-t border-slate-800 pb-safe">
-        <div className="flex justify-around items-center p-2 max-w-2xl mx-auto">
-          <button 
-            onClick={() => setActiveTab('plan')}
-            className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === 'plan' ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            <HomeIcon className="w-6 h-6" />
-            <span className="text-[10px] font-medium">計畫</span>
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('calendar')}
-            className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === 'calendar' ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            <CalendarIcon className="w-6 h-6" />
-            <span className="text-[10px] font-medium">打卡</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('stats')}
-            className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === 'stats' ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            <StatsIcon className="w-6 h-6" />
-            <span className="text-[10px] font-medium">數據</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('stretch')}
-            className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === 'stretch' ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            <StretchIcon className="w-6 h-6" />
-            <span className="text-[10px] font-medium">放鬆</span>
-          </button>
-
-          <button 
-            onClick={() => setActiveTab('consultant')}
-            className={`p-3 rounded-xl flex flex-col items-center gap-1 transition-all ${activeTab === 'consultant' ? 'text-cyan-400' : 'text-slate-500 hover:text-slate-300'}`}
-          >
-            <ChatIcon className="w-6 h-6" />
-            <span className="text-[10px] font-medium">顧問</span>
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }
